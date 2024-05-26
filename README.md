@@ -18,7 +18,7 @@ This project is a personalized voice assistant that uses various machine learnin
 Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/yourrepository.git
+git clone https://github.com/vineethsaivs/Personalized-Voice-Assistant.git
 ```
 
 Install the required packages:
@@ -67,5 +67,3 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 [MIT](https://choosealicense.com/licenses/mit/)
 ```
-
-Remember to replace `yourusername` and `yourrepository` with your actual GitHub username and repository name. Also, you might want to add more details about your project, such as its purpose, how it works, and any limitations it might have.

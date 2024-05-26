@@ -1,0 +1,9 @@
+python-dotenv
+deepgram-sdk
+faiss-cpu
+langchainhub
+sentence_transformers
+langchain
+langchain_groq
+flask
+pydub

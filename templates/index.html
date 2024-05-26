@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Audio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2em;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+        p {
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Record Your Audio</h1>
+        <p id="recording-status">Click 'Record' to start</p>
+        <button onclick="startRecording(this)">Record</button>
+        <button onclick="stopRecording(this)" disabled>Stop</button>
+    </div>
+
+    <script>
+        let recordButton = document.querySelector('button[onclick="startRecording(this)"]');
+        let stopButton = document.querySelector('button[onclick="stopRecording(this)"]');
+        let recorder, audioStream;
+
+        async function startRecording(button) {
+            audioStream = await navigator.mediaDevices.getUserMedia({audio: true});
+            recorder = new MediaRecorder(audioStream);
+            let audioChunks = [];
+
+            recorder.ondataavailable = e => {
+                audioChunks.push(e.data);
+            };
+
+            recorder.onstop = e => {
+                let blob = new Blob(audioChunks, {type: 'audio/webm'});
+                let reader = new FileReader();
+                reader.onload = () => {
+                    let base64AudioMessage = reader.result.toString().split(',')[1];
+                    fetch('/upload_audio', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({message: base64AudioMessage})
+                    }).then(response => response.json()).then(data => {
+                        console.log('Server response:', data);
+                    });
+                };
+                reader.readAsDataURL(blob);
+                audioChunks = [];
+            };
+
+            recorder.start();
+            recordButton.disabled = true;
+            stopButton.disabled = false;
+            document.getElementById('recording-status').textContent = 'Recording...';
+        }
+
+        function stopRecording(button) {
+            recorder.stop();
+            recordButton.disabled = false;
+            stopButton.disabled = true;
+            document.getElementById('recording-status').textContent = 'Stopped recording.';
+            audioStream.getTracks().forEach(track => track.stop());
+        }
+    </script>
+</body>
+</html>
